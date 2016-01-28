@@ -1,3 +1,6 @@
+# NOTE: if you're using Windows, make sure you turn off your firewall, or at least
+# tell it not to mess with ICMP packets, otherwise this scanner might not work.
+
 import socket, os, struct, sys, threading, time
 from netaddr import IPNetwork, IPAddress
 from ctypes import *
@@ -53,10 +56,10 @@ class ICMP(Structure):
         ("next_hop_mtu", c_ushort)
     ]
 
-    def __new__(self, socket_buffer):
+    def __new__(self, socket_buffer=None):
         return self.from_buffer_copy(socket_buffer)
 
-    def __init__(self, socket_buffer):
+    def __init__(self, socket_buffer=None):
         pass
 
 def udp_sender(subnet, magic_string):
@@ -102,9 +105,8 @@ try:
         # if it's ICMP, we want it
         if ip_header.protocol == "ICMP":
             # compute where our ICMP packet starts
-            offset = ip_header.ihl * 4
+            offset = ip_header.ihl * 4 # compute where IP header ends and ICMP packet begins (it's carried in the data field)
             buff = raw_buffer[offset:offset + sizeof(ICMP)]
-
             # create a new ICMP structure
             icmp_header = ICMP(buff)
 
